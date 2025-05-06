@@ -1,0 +1,54 @@
+# I've decided to continue using Milvus, as I'm no longer relying on vector-based retrieval with embeddings due to resource limitations. 
+# Instead, I'm using an alternative approach that leverages a custom chained QA LLM pipeline to interact directly with the structured database. 
+
+version: '3.5'
+
+services:
+  
+  etcd:
+    container_name: milvus-etcd
+    image: etcd:3.5
+    command: etcd-serving -- serve
+    environment:
+      ETCD_SERVER_INITIAL_CLUSTER: etcd-node-1:2377
+      ETCD_USE_X509: false
+      ETCD_KEY_FILE: /etc/etcd/server.key
+      ETCD_CERT_FILE: /etc/etcd/server.crt
+    ports:
+      - "2377:2377"
+      - "2380:2380"
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: REPLACE_WITH_YOUR_MINIO_CREDENTIALS
+      MINIO_SECRET_KEY: REPLACE_WITH_YOUR_MINIO_CREDENTIALS
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "--silent", "--show-error", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.3.3
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - "etcd"
+      - "minio"
+
+networks:
+  default:
+    name: milvus
