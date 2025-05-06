@@ -40,7 +40,7 @@ To visualize the intricate interaction relationships within the dataset, the <co
 <h4 align="center">Overview of Cleaned Drug-Drug Interaction Dataset Used in the Proposed Research</h4>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/03acaa39-7f97-4c0f-a26c-3490f95107ba" width="400" style="margin: 0 10px;" />
-  <img src="https://github.com/user-attachments/assets/f0e66784-6892-4aeb-a55a-e27e5728d52c" width="400" style="margin: 0 10px;" />
+  <img src="https://github.com/user-attachments/assets/f0e66784-6892-4aeb-a55a-e27e5728d52c" width="300" style="margin: 0 10px;" />
 </p>
 
 ## Hybrid LLM Agent System Approaches
