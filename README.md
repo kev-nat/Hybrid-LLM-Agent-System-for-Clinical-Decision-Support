@@ -39,7 +39,7 @@ To visualize the intricate interaction relationships within the dataset, the <co
 
 <h4 align="center">Overview of Cleaned Drug-Drug Interaction Dataset Used in the Proposed Research</h4>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/03acaa39-7f97-4c0f-a26c-3490f95107ba" width="595" style="margin: 0 10px;" />
+  <img src="https://github.com/user-attachments/assets/03acaa39-7f97-4c0f-a26c-3490f95107ba" width="400" style="margin: 0 10px;" />
   <img src="https://github.com/user-attachments/assets/f0e66784-6892-4aeb-a55a-e27e5728d52c" width="400" style="margin: 0 10px;" />
 </p>
 
@@ -116,7 +116,7 @@ The orchestration process begins when a user submits a query, which the LLM firs
 <h4 align="center">Runnable Sequence and Agent Executor Reasoning Results viewed in LangSmith</h4>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/92704bcb-320b-4b37-b40f-ca18f9127263" width="300" style="margin: 0 10px;" />
-  <img src="https://github.com/user-attachments/assets/124512ef-411e-4748-aa2d-8f2d7c2d75bd" width="300" style="margin: 0 10px;" />
+  <img src="https://github.com/user-attachments/assets/124512ef-411e-4748-aa2d-8f2d7c2d75bd" width="380" style="margin: 0 10px;" />
 </p>
 
 <p align="justify">
