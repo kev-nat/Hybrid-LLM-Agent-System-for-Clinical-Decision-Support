@@ -116,7 +116,7 @@ The orchestration process begins when a user submits a query, which the LLM firs
 <h4 align="center">Runnable Sequence and Agent Executor Reasoning Results viewed in LangSmith</h4>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/92704bcb-320b-4b37-b40f-ca18f9127263" width="300" style="margin: 0 10px;" />
-  <img src="https://github.com/user-attachments/assets/59b062a4-e6b5-4cc5-9686-606eb22764d6" width="380" style="margin: 0 10px;" />
+  <img src="https://github.com/user-attachments/assets/124512ef-411e-4748-aa2d-8f2d7c2d75bd" width="300" style="margin: 0 10px;" />
 </p>
 
 <p align="justify">
