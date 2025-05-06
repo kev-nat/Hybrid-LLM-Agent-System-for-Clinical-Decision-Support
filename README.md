@@ -211,3 +211,64 @@ Following the detailed examination of each prompt, the key differences between t
 </table>
 </div>
 
+### Why I Prefer LLM Agents Over Retrieval-Augmented Generation (RAG)
+<p align="justify">
+Following the prompt engineering approach described in previous section, this study deliberately chose an LLM Agent architecture over Retrieval-Augmented Generation (RAG). The initial approach considered using RAG with embeddings and vector stores before passing information to an LLM, but this proved less effective for the specific requirements of drug interaction queries. LLM agents offer distinct advantages as they convert user questions into exact database queries that the system understands, allowing for highly accurate and precise extraction of information from structured sources. 
+</p>
+
+<p align="justify">
+While RAG relies on vector search and semantic relationships, which can introduce ambiguity in highly specific pharmaceutical contexts, LLM agents use the exact language and structure that the database understands, significantly reducing ambiguity and improving result precision. This precision becomes particularly valuable when handling complex, detailed, and nuanced drug interaction queries that require specific field targeting within the database schema. Furthermore, LLM agents excel in retrieving data from structured databases by directly interacting with the database's query language, making them more effective for the relational, highly structured nature of pharmaceutical data. 
+</p>
+
+<p align="justify">
+RAG, while beneficial for unstructured data or broad searches, often struggles with the intricate, expert-level queries common in pharmaceutical contexts. The SQL-generating agent ensures more accurate and relevant results, especially when dealing with the complex, structured nature of drug interaction databases, and can scale effectively in domains requiring expert knowledge by generating precisely tailored queries matched to the database's structure.
+</p>
+
+### Which Is Better: Direct Retrieval or Predictive Modeling?
+<p align="justify">
+Building upon the decision to use LLM agents rather than RAG, this implementation similarly avoided Graph Neural Networks (GNNs) for drug-drug interaction processing. The initial research considered using Graph Convolutional Networks (GCNs) to predict drug interactions, but this approach became unnecessary once the complete interaction dataset was obtained. 
+
+<p align="justify">
+The system's primary objective is retrieving existing, documented interactions from the database rather than predicting new, theoretical ones. GCNs are powerful tools for predicting or inferring unknown interactions in incomplete datasets, but this use case already had comprehensive interaction data available in the PostgreSQL database. GCNs would have been appropriate had the research questions focused on predicting hypothetical interactions (e.g., "Could Drug X and Drug Y interact based on similar molecular structures?") or analyzing interaction networks (e.g., "Which drug has the most severe potential interactions across the entire database?"). Such predictive tasks would involve building a graph representation with drugs as nodes and interactions as edges, training a GCN to predict missing edges, and requiring labeled negative examples of non-interacting pairs.
+</p>
+
+<p align="justify">
+Similarly, network analysis applications would use graph algorithms to identify high-risk drugs (represented by highly connected nodes) or cluster medications by interaction patterns. However, since the implemented system focuses on efficiently retrieving and explaining documented interactions rather than predicting new ones, the direct database querying approach using LLM agents proved more appropriate, simpler, and more aligned with the practical needs of users seeking established interaction information.
+</p>
+
+## Conclusion
+<p align="justify">
+This study demonstrates that a hybrid LLM Agent system can effectively support medical students' learning about drug-drug interactions (DDIs) while enhancing information retrieval capabilities for healthcare professionals. The system shows significant promise for improving clinical decision-making through accurate, relevant responses to pharmaceutical queries. The research conclusively addresses three key problem formulations:
+</p>
+
+<p align="justify">
+First, regarding query classification, the hybrid LLM agent successfully classifies natural language queries by implementing a specialized routing prompt that distinguishes between structured database retrieval needs and general knowledge requirements. This classification mechanism achieves high accuracy by identifying specific patterns in user queries, such as mentions of drug pair interactions (routed to the database) versus broader pharmacological concepts (directed to general search).
+</p>
+
+<p align="justify">
+Second, concerning deterministic accuracy, the system ensures precise retrieval of drug interaction data through carefully engineered SQL generation prompts with controlled temperature settings (0.0-0.3). The two-stage process SQL generation followed by natural language transformation of results which creates a mechanism that balances technical precision with accessible communication.
+</p>
+
+<p align="justify">
+Third, addressing the balance between precision and accessibility, the hybrid architecture successfully combines technical accuracy with user-friendly communication by employing different prompts optimized for distinct functions. This dual approach enhances workflow efficiency for clinicians while providing educational value for medical students.
+</p>
+
+<p align="justify">
+The framework developed extends beyond healthcare and can be adapted to other industries requiring specialized information retrieval from structured databases. Analysis through LangSmith confirms that input-output patterns match expectations across different query types, though the system could potentially be enhanced through memory mechanisms, a feature not implemented due to computational resource constraints.
+</p>
+
+<p align="justify">
+Future efforts will focus on deploying newer LLM models into the proposed web application to create a practical and accessible information retrieval tool. Integration with the DrugBank API will ensure that drug information remains current and comprehensive, enhancing the system's clinical relevance. Key priorities include optimizing the integration of query classification and response generation for real-time analysis, ensuring seamless user interaction, and enhancing system reliability under diverse clinical conditions.
+</p>
+
+<p align="justify">
+Achieving the desired accuracy and reliability will require significant computational resources. Real-world applications will necessitate further tuning and optimization to handle complex pharmaceutical queries effectively, highlighting the need for high-performance computing systems to support advanced model deployment with potential memory mechanisms.
+</p>
+
+<p align="justify">
+Future advancements will include deploying this system in medical schools and healthcare facilities with direct connections to hospital databases for seamless incorporation of analysis results into patient records. This integration would enhance longitudinal tracking of medication management and treatment efficacy, with robust data security measures prioritized to protect patient privacy.
+</p>
+
+<p align="justify">
+By addressing these computational and data challenges, the system has the potential to provide valuable clinical decision support for DDI prevention and drug information retrieval. This could significantly reduce adverse drug reactions and misdiagnoses, improving patient outcomes and potentially reducing fatal incidents caused by unrecognized drug interactions. Through enabling timely and effective medication management, this approach aims to enhance healthcare delivery while simultaneously serving as a powerful educational tool for medical professionals in training.
+</p>
