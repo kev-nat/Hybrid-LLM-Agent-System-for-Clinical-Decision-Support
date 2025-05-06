@@ -115,8 +115,8 @@ The orchestration process begins when a user submits a query, which the LLM firs
 
 <h4 align="center">Runnable Sequence and Agent Executor Reasoning Results viewed in LangSmith</h4>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/92704bcb-320b-4b37-b40f-ca18f9127263" width="400" style="margin: 0 10px;" />
-  <img src="https://github.com/user-attachments/assets/59b062a4-e6b5-4cc5-9686-606eb22764d6" width="480" style="margin: 0 10px;" />
+  <img src="https://github.com/user-attachments/assets/92704bcb-320b-4b37-b40f-ca18f9127263" width="300" style="margin: 0 10px;" />
+  <img src="https://github.com/user-attachments/assets/59b062a4-e6b5-4cc5-9686-606eb22764d6" width="380" style="margin: 0 10px;" />
 </p>
 
 <p align="justify">
@@ -143,17 +143,17 @@ In contrast, the SerpApi Search tool use a higher temperature setting (0.4-0.7) 
 The efficacy of the hybrid LLM agent depends heavily on designed prompts that direct the model toward specific tasks while maintaining domain expertise. The system implements three distinct prompt templates, each engineered for specific functions within the overall workflow.
 </p>
 
-### 2.1 QA DB Tools Prompt (SQL Query Generation)
+### 2.1. QA DB Tools Prompt (SQL Query Generation)
 <p align="justify">
 The SQL query generation prompt positions the model as an expert pharmacologist analyzing a drug interaction database. This prompt template receives the database schema and conversation history as context, then transforms the user's natural language question into a precisely formatted SQL query. The template explicitly instructs the model to generate only the SQL query without explanatory text or code formatting elements like backticks. It includes illustrative examples showing how specific user questions (e.g., "What's the interaction of Lepirudin and Apixaban?") should be translated into corresponding SQL queries (e.g., "SELECT description FROM ddi WHERE (drug_name = 'Lepirudin' AND interacting_drug_name = 'Apixaban');"). These examples demonstrate expected output formats and common query patterns, helping the model understand the translation process from natural language to database queries. The prompt maintains strict output constraints to ensure the generated SQL is directly executable against the database without requiring additional processing or cleanup.
 </p>
 
-### 2.2 DB Response Prompt Query (SQL Query to Natural Language)
+### 2.2. DB Response Prompt Query (SQL Query to Natural Language)
 <p align="justify">
 The database response prompt serves as an interpretive layer between raw database results and user-friendly explanations. This template takes multiple inputs the database schema, conversation history, the executed SQL query, the user's original question, and the raw SQL response data and synthesizes them into coherent natural language explanations. The prompt establishes the same expert pharmacologist persona as the query generation prompt, maintaining consistency in the user experience. Unlike the previous prompt that produces only SQL code, this prompt generates comprehensive explanations that contextualize the database findings in terms relevant to the user's original question. For example, when processing results about drug interactions, the model will explain potential risks, severity, or recommendations in pharmacological terms rather than simply reporting the raw data. This transformation step is essential for making technical database information accessible and meaningful to users who may lack database expertise or detailed pharmaceutical knowledge.
 </p>
 
-### 2.3 DB Query vs Internet Query (Query Categorization)
+### 2.3. DB Query vs Internet Query (Query Categorization)
 <p align="justify">
 The query categorization prompt functions as the decision-making gateway in the system's workflow. This prompt template instructs the model to analyze incoming user queries and strictly categorize them as either "DATABASE" or "SerpApi" based on specific criteria. Database queries are identified as those specifically about drug-to-drug interactions between named medications or direct questions about the database structure itself. All other pharmaceutical queries including those about drug compositions, side effects (unless interaction-specific), pharmacology, chemical properties, manufacturing processes, historical information, mechanisms of action, or dosage information are categorized as "SerpApi" queries to be handled by the general search tool. The prompt emphasizes strict categorization with explicit instructions and clearly defined boundaries, preventing edge cases from being incorrectly routed. This critical routing function ensures that each user question is directed to the most appropriate processing pipeline, maximizing the system's ability to provide relevant and accurate information while optimizing computational resource utilization.
 </p>
