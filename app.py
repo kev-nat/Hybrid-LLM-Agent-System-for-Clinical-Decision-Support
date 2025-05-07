@@ -1,13 +1,13 @@
 import streamlit as st
 from dotenv import load_dotenv
-from langchain.agents import Tool, initialize_agent
 from langchain_openai import ChatOpenAI
+from langchain.agents import Tool, initialize_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.utilities import SQLDatabase
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import AIMessage, HumanMessage
-from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
+from langchain_community.utilities import SerpAPIWrapper
 
 def init_database(user: str, password: str, host: str, port: str, database:str) -> SQLDatabase:
     db_uri = f"postgresql://{user}:{password}@{host}:{port}/{database}"
@@ -86,11 +86,13 @@ def get_db_response(user_query: str, db: SQLDatabase, chat_history: list):
         "chat_history": chat_history,
     })
 
-def get_wiki_agent():
+def get_serp_agent():
+    search = SerpAPIWrapper()
+    
     search_tool = Tool(
-        name="Wikipedia Search",
-        func=WikipediaAPIWrapper().run,
-        description="Use this tool to perform Wikipedia searches for drug information."
+        name="SerpAPI Search",
+        func=search.run,
+        description="Use this tool to search the web for drug information and other general queries."
     )
 
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.3)
@@ -100,7 +102,7 @@ def get_wiki_agent():
     return initialize_agent(tools, llm, agent="zero-shot-react-description", verbose=False)
 
 def is_db_query(user_query: str, chat_history: list) -> bool:
-    """Determine if the query should be routed to the database or Wikipedia search."""
+    """Determine if the query should be routed to the database or web search."""
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     
     template = """
@@ -123,12 +125,12 @@ def is_db_query(user_query: str, chat_history: list) -> bool:
     - Mechanisms of action
     - Dosage information
     
-    You MUST respond with "WIKIPEDIA" for these types of queries.
+    You MUST respond with "SEARCH" for these types of queries.
     
     Conversation History: {chat_history}
     User Query: {question}
     
-    Response (ONLY "DATABASE" or "WIKIPEDIA"):
+    Response (ONLY "DATABASE" or "SEARCH"):
     """
     
     prompt = ChatPromptTemplate.from_template(template)
@@ -146,9 +148,9 @@ def is_db_query(user_query: str, chat_history: list) -> bool:
     
     return "DATABASE" in result.upper()
 
-def get_wiki_response(user_query: str):
-    """Get response from Wikipedia agent and return it as a stream"""
-    agent = get_wiki_agent()
+def get_serp_response(user_query: str):
+    """Get response from SerpAPI agent and return it as a stream"""
+    agent = get_serp_agent()
     response = agent.run(user_query)
     
     # Convert string response to a stream-like object
@@ -163,8 +165,8 @@ def get_response(user_query: str, db: SQLDatabase, chat_history: list):
         # Use Tool 1: Database Query
         return get_db_response(user_query, db, chat_history)
     else:
-        # Use Tool 2: Wikipedia Search
-        return get_wiki_response(user_query)
+        # Use Tool 2: SerpAPI Search
+        return get_serp_response(user_query)
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
