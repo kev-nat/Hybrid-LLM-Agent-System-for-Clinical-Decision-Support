@@ -1,13 +1,14 @@
 import streamlit as st
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain.agents import Tool, initialize_agent
-from langchain_core.prompts import ChatPromptTemplate
+from langchain.agents import Tool, AgentExecutor, create_react_agent
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_community.utilities import SQLDatabase
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_community.utilities import SerpAPIWrapper
+from langchain import hub
 
 def init_database(user: str, password: str, host: str, port: str, database:str) -> SQLDatabase:
     db_uri = f"postgresql://{user}:{password}@{host}:{port}/{database}"
@@ -87,19 +88,59 @@ def get_db_response(user_query: str, db: SQLDatabase, chat_history: list):
     })
 
 def get_serp_agent():
-    search = SerpAPIWrapper()
-    
-    search_tool = Tool(
-        name="SerpAPI Search",
-        func=search.run,
-        description="Use this tool to search the web for drug information and other general queries."
-    )
+    """Create a SERP agent with proper error handling"""
+    try:
+        search = SerpAPIWrapper()
+        
+        search_tool = Tool(
+            name="search",
+            func=search.run,
+            description="Use this tool to search the web for drug information, pharmacology, side effects, and other general pharmaceutical queries."
+        )
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.3)
+        llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.3)
+        tools = [search_tool]
+        
+        # Use the newer create_react_agent approach
+        try:
+            # Try to get the react prompt from hub
+            prompt = hub.pull("hwchase17/react")
+        except:
+            # Fallback to manual prompt if hub is not available
+            prompt = PromptTemplate.from_template("""
+            Answer the following questions as best you can. You have access to the following tools:
 
-    tools = [search_tool]
+            {tools}
 
-    return initialize_agent(tools, llm, agent="zero-shot-react-description", verbose=False)
+            Use the following format:
+
+            Question: the input question you must answer
+            Thought: you should always think about what to do
+            Action: the action to take, should be one of [{tool_names}]
+            Action Input: the input to the action
+            Observation: the result of the action
+            ... (this Thought/Action/Action Input/Observation can repeat N times)
+            Thought: I now know the final answer
+            Final Answer: the final answer to the original input question
+
+            Begin!
+
+            Question: {input}
+            Thought: {agent_scratchpad}
+            """)
+        
+        agent = create_react_agent(llm, tools, prompt)
+        
+        return AgentExecutor(
+            agent=agent, 
+            tools=tools, 
+            verbose=False,
+            handle_parsing_errors=True,
+            max_iterations=3
+        )
+    except Exception as e:
+        st.error(f"Error initializing SERP agent: {str(e)}")
+        return None
 
 def is_db_query(user_query: str, chat_history: list) -> bool:
     """Determine if the query should be routed to the database or web search."""
@@ -149,15 +190,32 @@ def is_db_query(user_query: str, chat_history: list) -> bool:
     return "DATABASE" in result.upper()
 
 def get_serp_response(user_query: str):
-    """Get response from SerpAPI agent and return it as a stream"""
-    agent = get_serp_agent()
-    response = agent.run(user_query)
+    """Get response from SerpAPI agent with proper error handling"""
+    agent_executor = get_serp_agent()
     
-    # Convert string response to a stream-like object
-    def response_generator():
-        yield response
+    if agent_executor is None:
+        def error_generator():
+            yield "Sorry, I'm having trouble accessing web search at the moment. Please try again later."
+        return error_generator()
     
-    return response_generator()
+    try:
+        response = agent_executor.invoke({"input": user_query})
+        
+        # Extract the output from the response
+        if isinstance(response, dict) and "output" in response:
+            final_response = response["output"]
+        else:
+            final_response = str(response)
+        
+        def response_generator():
+            yield final_response
+        
+        return response_generator()
+    
+    except Exception as e:
+        def error_generator():
+            yield f"I encountered an error while searching for information: {str(e)}. Please try rephrasing your question."
+        return error_generator()
 
 def get_response(user_query: str, db: SQLDatabase, chat_history: list):
     # Determine which tool to use
@@ -191,15 +249,18 @@ with st.sidebar:
     
     if st.button("Connect"):
         with st.spinner("Connecting to database..."):
-            db = init_database(
-                st.session_state["User"],
-                st.session_state["Password"],
-                st.session_state["Host"],
-                st.session_state["Port"],
-                st.session_state["Database"]
-            )
-            st.session_state.db = db
-            st.success("Connected to database!")
+            try:
+                db = init_database(
+                    st.session_state["User"],
+                    st.session_state["Password"],
+                    st.session_state["Host"],
+                    st.session_state["Port"],
+                    st.session_state["Database"]
+                )
+                st.session_state.db = db
+                st.success("Connected to database!")
+            except Exception as e:
+                st.error(f"Failed to connect to database: {str(e)}")
 
 for message in st.session_state.chat_history:
     if isinstance(message, AIMessage):
@@ -218,9 +279,16 @@ if user_query is not None and user_query.strip() !="":
     
     with st.chat_message("AI"):
         try:
-            response = st.write_stream(get_response(user_query, st.session_state.db, st.session_state.chat_history))
-            st.session_state.chat_history.append(AIMessage(content=response))
+            # Check if database is connected for database queries
+            if is_db_query(user_query, st.session_state.chat_history) and "db" not in st.session_state:
+                error_msg = "Please connect to the database first to query drug interactions."
+                st.error(error_msg)
+                st.session_state.chat_history.append(AIMessage(content=error_msg))
+            else:
+                db = st.session_state.get("db", None)
+                response = st.write_stream(get_response(user_query, db, st.session_state.chat_history))
+                st.session_state.chat_history.append(AIMessage(content=response))
         except Exception as e:
-            error_msg = f"Error: {str(e)}. Please make sure you're connected to the database."
+            error_msg = f"Error: {str(e)}. Please try again or check your connection."
             st.error(error_msg)
             st.session_state.chat_history.append(AIMessage(content=error_msg))
