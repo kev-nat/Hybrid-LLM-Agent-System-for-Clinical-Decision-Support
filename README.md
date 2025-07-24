@@ -10,10 +10,10 @@ Drug-Drug Interactions (DDIs) are a major cause of adverse medical events and re
 The primary goal of this project is to create a reliable clinical decision support tool that bridges the gap between the conversational power of LLMs and the factual accuracy of structured medical databases.
 
 The key objectives are:
-1. Develop a hybrid LLM agent that can accurately answer natural language questions about DDIs.
-2. Ensure factual correctness by forcing the system to retrieve information directly from a verified database for critical queries.
-3. Build an intelligent routing system that can distinguish between a specific DDI query and a general pharmacology question, using the best tool for each.
-4. Evaluate the system's performance using advanced, meaning-based metrics to prove its reliability for clinical use.
+- Develop a hybrid LLM agent that can accurately answer natural language questions about DDIs.
+- Ensure factual correctness by forcing the system to retrieve information directly from a verified database for critical queries.
+- Build an intelligent routing system that can distinguish between a specific DDI query and a general pharmacology question, using the best tool for each.
+- Evaluate the system's performance using advanced, meaning-based metrics to prove its reliability for clinical use.
 
 ## Approaches
 Designed a hybrid agent system that intelligently orchestrates two distinct tools, avoiding the potential ambiguities of a standard Retrieval-Augmented Generation (RAG) approach.
