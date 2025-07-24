@@ -32,7 +32,7 @@ Designed a hybrid agent system that intelligently orchestrates two distinct tool
 ## Impacts
 The system was rigorously evaluated and demonstrated exceptional performance, proving its potential for real-world clinical and educational applications.
 
-- **High Factual Accuracy:** The system achieved 98.17% accuracy in identifying correct drug entities and 88.50% accuracy in classifying the interaction type, validating the reliability of the database-grounded approach.
-- **Excellent Semantic Performance:** Traditional text-matching metrics showed 0% accuracy, but our advanced evaluation revealed the system's true capabilities. It achieved 89.4% average semantic similarity and a 96% equivalence score from an LLM-based judge (GPTScore), confirming that it consistently provides the correct information, even if worded differently.
-- **Proven Reliability:** The intelligent routing mechanism successfully mitigates the risk of LLM hallucination for critical queries, establishing a robust and trustworthy framework for using LLMs in a clinical context.
-- **Clinical and Educational Value:** This project provides a strong foundation for a tool that can help clinicians make safer prescribing decisions and serve as an advanced, interactive learning platform for medical students.
+- The system achieved 98.17% accuracy in identifying correct drug entities and 88.50% accuracy in classifying the interaction type, validating the reliability of the database-grounded approach.
+- Traditional text-matching metrics showed 0% accuracy, but our advanced evaluation revealed the system's true capabilities. It achieved 89.4% average semantic similarity and a 96% equivalence score from an LLM-based judge (GPTScore), confirming that it consistently provides the correct information, even if worded differently.
+- The intelligent routing mechanism successfully mitigates the risk of LLM hallucination for critical queries, establishing a robust and trustworthy framework for using LLMs in a clinical context.
+- This project provides a strong foundation for a tool that can help clinicians make safer prescribing decisions and serve as an advanced, interactive learning platform for medical students.
