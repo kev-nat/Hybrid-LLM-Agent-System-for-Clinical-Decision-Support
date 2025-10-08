@@ -15,22 +15,33 @@ The key objectives are:
 - Build an intelligent routing system that can distinguish between a specific DDI query and a general pharmacology question, using the best tool for each.
 - Evaluate the system's performance using advanced, meaning-based metrics to prove its reliability for clinical use.
 
-## Approaches
-Designed a hybrid agent system that intelligently orchestrates two distinct tools, avoiding the potential ambiguities of a standard Retrieval-Augmented Generation (RAG) approach.
+## Architectural Exploration & Design Evolution
+Before finalizing the hybrid agent architecture, multiple paradigms were **prototyped and evaluated** to determine the most reliable and efficient design:
 
-**1. Architecture:** The system uses GPT-3.5 Turbo with LangChain to power an agent with access to two specialized tools. The agent analyzes the user's intent to decide which tool to use.
+- **Native RAG:** Easy to build but insufficiently deterministic, prone to factual drift in DDI-specific queries.  
+- **Fully Agentic / Graph-based:** Provided flexible control flows but introduced unnecessary latency and complexity for clinical deployment.  
+- **Hybrid SQL + Agent Routing (Final Design):** Balanced factual grounding and conversational ability, combining deterministic SQL retrieval with generative reasoning.
+
+This exploration established the foundation for the final system architecture, ensuring both **accuracy and responsiveness** in high-stakes clinical environments.
+
+<img width="1594" height="528" alt="image" src="https://github.com/user-attachments/assets/78ec303d-a6b0-4c00-925f-93fe3ceb6142" />
+
+*Figure: Custom Chained QA LLM Pipeline: Combining natural language understanding, SQL generation, and fact-grounded answer synthesis.*
+
+## Approaches
+**1. Architecture:** The system uses **GPT-3.5 Turbo** with **LangChain** to power an agent equipped with two distinct tools. The agent analyzes the user’s intent and dynamically decides which tool to invoke.
 
 **2. Deterministic Database Tool:**
-- For specific DDI queries (e.g., "Interaction between Lepirudin and Apixaban?"), the agent uses a custom, schema-aware pipeline to generate a precise SQL query.
-- This query is run against a PostgreSQL database containing the complete DrugBank dataset (2.86M rows).
-- This process is highly controlled (low temperature setting) to ensure the output is factually grounded and free of hallucinations.
+- For specific DDI queries (e.g., *“Interaction between Lepirudin and Apixaban?”*), the agent uses a **custom, schema-aware SQL pipeline**.  
+- The generated SQL query is executed on a **PostgreSQL** database containing the full **DrugBank dataset (2.86M rows as per Jan 2025)**.  
+- Responses are generated under **controlled temperature** settings to ensure factual grounding and eliminate hallucinations.
 
 **3. General Search Tool:**
-- For broader questions (e.g., "What is the history of Lepirudin?"), the agent routes the query to a web search tool (SerpApi).
+- For broader or educational queries (e.g., *“What is the history of Lepirudin?”*), the agent routes the query to a **web search tool (SerpApi)**.  
 - This allows for more flexible, conversational answers on topics not contained within the structured DDI database.
 
 ## Impacts
-- The system achieved 98.17% accuracy in identifying correct drug entities and 88.50% accuracy in classifying the interaction type, validating the reliability of the database-grounded approach.
-- Traditional text-matching metrics showed 0% accuracy, but our advanced evaluation revealed the system's true capabilities. It achieved 89.4% average semantic similarity and a 96% equivalence score from an LLM-based judge (GPTScore), confirming that it consistently provides the correct information, even if worded differently.
+- The system achieved 99.50% accuracy in identifying correct drug entities and 92.50% accuracy in classifying the interaction type, validating the reliability of the database-grounded approach.
+- Traditional text-matching metrics showed 1% accuracy, but our advanced evaluation revealed the system's true capabilities. It achieved 90.72% average semantic similarity and a 92% equivalence score from an LLM-based judge (GPTScore), confirming that it consistently provides the correct information, even if worded differently.
 - The intelligent routing mechanism successfully mitigates the risk of LLM hallucination for critical queries, establishing a robust and trustworthy framework for using LLMs in a clinical context.
 - Provides a strong foundation for a tool that can help clinicians make safer prescribing decisions and serve as an advanced, interactive learning platform for medical students.
