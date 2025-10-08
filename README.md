@@ -1,4 +1,4 @@
-# Hybrid LLM Agent System for Clinical Decision Support
+# Clinthesis
 This project develops and evaluates a hybrid Large Language Model (LLM) agent system designed to provide accurate and reliable information on Drug-Drug Interactions (DDIs) for clinical decision support and medical education.
 
 https://github.com/user-attachments/assets/a958fa8c-3472-4ae5-9326-af55ba65c8b0
