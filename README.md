@@ -22,7 +22,7 @@ Designed a hybrid agent system that intelligently orchestrates two distinct tool
 
 **2. Deterministic Database Tool:**
 - For specific DDI queries (e.g., "Interaction between Lepirudin and Apixaban?"), the agent uses a custom, schema-aware pipeline to generate a precise SQL query.
-- This query is run against a PostgreSQL database containing the complete DrugBank dataset.
+- This query is run against a PostgreSQL database containing the complete DrugBank dataset (2.86M rows).
 - This process is highly controlled (low temperature setting) to ensure the output is factually grounded and free of hallucinations.
 
 **3. General Search Tool:**
